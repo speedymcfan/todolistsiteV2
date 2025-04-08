@@ -553,12 +553,15 @@
                                       .filter(cb => cb && cb.checked).length;
              const totalCount = savedSubtasks.length;
              const progressBarFill = todoItem.querySelector('.progress-bar-fill');
-
-             if (totalCount > 0) {
-                 progressBarFill.style.width = `${(checkedCount / totalCount) * 100}%`;
+             if (mainTaskCheckbox.checked) {
+                 progressBarFill.style.width = '100%';
              } else {
-                 progressBarFill.style.width = '0%'; // No saved subtasks, 0% progress
-             }
+                 if (totalCount > 0) {
+                     progressBarFill.style.width = `${(checkedCount / totalCount) * 100}%`;
+                 } else {
+                     progressBarFill.style.width = '0%'; // No saved subtasks, 0% progress
+                 }
+             }    
         }
 
         // Disable Add button initially and on input change
