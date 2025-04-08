@@ -5,12 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>To-Do List</title>
     <style>
-        body {
-            background-color: #bbb4d4;
-            font: Bookman;
-            margin: 20px;
+        /* Added styles for checkbox and feedback message */
+        .todo-item .task-content {
+            display: flex;
+            align-items: center;
+            flex-grow: 1; /* Allow label to take space */
+            margin-bottom: 5px; /* Spacing before buttons/progress */
+        }
+        .todo-item .task-content input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .todo-item .task-details {
+            margin-left: 30px; /* Indent details slightly */
+            font-size: 0.9em;
+            color: #555;
+        }
+         .todo-item label { /* Adjusted label styling */
+            font-weight: normal; /* Removed bold to pair with checkbox */
+            margin-bottom: 0; /* Removed bottom margin */
+            flex-grow: 1;
+            word-break: break-word; /* Prevent long task names breaking layout */
+        }
+        .subtask label { /* Subtask label specific styling */
+             font-weight: normal;
+             flex-grow: 1;
+             margin-left: 5px;
+        }
+        .subtask input[type="checkbox"]{
+            margin-left: 5px;
         }
 
+        .feedback-message {
+            color: green;
+            padding: 5px;
+            margin-top: 10px;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .subtask .subtask-actions button {
+            margin-left: 5px; /* Spacing for subtask buttons */
+            padding: 3px 8px; /* Smaller buttons for subtasks */
+        }
+         .subtask-inputs { /* Container for subtask inputs */
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-left: 25px; /* Indent inputs */
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        }
+         .subtask-inputs textarea,
+         .subtask-inputs input[type="date"],
+         .subtask-inputs input[type="time"] {
+             padding: 5px;
+             margin: 0; /* Remove inherited margins */
+         }
+         .subtask-inputs button {
+              padding: 5px 10px;
+         }
+        /* --- Existing Styles (potentially with minor adjustments) --- */
+        body {
+            background-color: #bbb4d4;
+            font-family: sans-serif; /* Changed from non-standard 'Bookman' */
+            margin: 20px;
+        }
         h1 {
             margin-top: 50px;
             padding-top: 20px;
@@ -24,125 +82,107 @@
           background-color: #cccccc;
           cursor: default;
         }
-
         #todo-input {
             width: fit-content;
             margin: 20px auto;
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr 0.5fr;
+            grid-template-columns: 2fr 1fr 1fr auto auto; /* Adjusted for help button */
             gap: 10px;
+            align-items: center; /* Vertically align items */
         }
-
-        #todo-input input[type="text"] {
+        #todo-input input[type="text"],
+        #todo-input input[type="date"],
+        #todo-input input[type="time"] {
             padding: 8px;
             border: 1px solid #ccc;
         }
-
         #todo-input button {
             padding: 8px 15px;
             background-color: rgb(134, 61, 165);
             color: white;
             border: none;
             cursor: pointer;
+            height: 100%; /* Match input height */
         }
-        .todo-item button{
-            padding: 8px 15px;
+        .todo-item button{ /* General task buttons */
+            padding: 5px 10px; /* Slightly smaller padding */
             background-color: rgb(134, 61, 165);
             color: white;
             border: none;
             cursor: pointer;
         }
-
         #todo-list {
-            margin: 0 auto;
+            max-width: 800px; /* Constrain width */
+            margin: 20px auto;
             border: 1px solid #ccc;
             padding: 10px;
+            background-color: #fff; /* White background for list */
         }
-
         .todo-item {
             display: flex;
             flex-direction: column;
             align-items: stretch;
-            padding: 5px;
+            padding: 10px; /* Increased padding */
             border-bottom: 1px solid #eee;
         }
-
         .todo-item button {
-            margin: 10px;
-        }
-
-        .todo-item label {
-            font-weight: bold;
-            margin-bottom: 15px;
+            margin: 0 5px; /* Adjusted margin */
         }
 
         .todo-item:last-child {
             border-bottom: none;
         }
-
-        .todo-item input[type="checkbox"] {
-            margin-right: 10px;
-        }
-
-        .todo-item.completed {
+        .todo-item.completed .task-content label { /* Style completed task label */
             color: #888;
+            text-decoration: line-through;
         }
-
-        .todo-item.completed button {
-            color: white;
-            cursor: pointer;
-        }
-
+         .todo-item.completed .task-details { /* Style completed task details */
+             color: #aaa;
+         }
         .subtasks {
-            margin-top: 15px;
+            margin-top: 10px;
             margin-left: 20px;
+            border-left: 2px solid #eee; /* Visual indicator for subtasks */
+            padding-left: 10px;
         }
-
         .subtask{
             display: flex;
             align-items: center;
+            padding: 5px 0; /* Padding for subtasks */
+            flex-wrap: wrap; /* Allow wrapping */
         }
-
+        .subtask.completed label {
+             color: #888;
+             text-decoration: line-through;
+         }
         .progress-bar {
-            width: 80%;
-            height: 10px;
+            width: 100%; /* Full width relative to container */
+            height: 8px; /* Slimmer progress bar */
             background-color: #eee;
             border-radius: 5px;
             overflow: hidden;
+            margin-top: 5px;
+            margin-bottom: 10px; /* Spacing below progress bar */
         }
-
         .progress-bar-fill {
             height: 100%;
             background-color: #4caf50;
             width: 0%;
             transition: width 0.3s ease;
         }
-
         .button-container {
-            display: flex; 
-            justify-content: flex-start; 
-            margin-bottom: 5px; 
-            margin-top: 15px;
-        }
-
-        .todo-item > div:not(.subtasks):not(.button-container) {
             display: flex;
-            align-items: center;
+            justify-content: flex-start;
+            margin-top: 5px; /* Spacing above buttons */
+            flex-wrap: wrap; /* Allow buttons to wrap */
         }
-
+        /* Help Modal Styles */
         #help-modal {
             border-radius: 5px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-        
-        #help-modal h2 {
-            margin-bottom: 15px;
-        }
-        
-        #help-modal p {
-            margin-bottom: 10px;
-        }
-        
+        #help-modal h2 { margin-bottom: 15px; }
+        #help-modal p { margin-bottom: 10px; }
         #help-modal button {
             padding: 8px 15px;
             background-color: rgb(134, 61, 165);
@@ -151,28 +191,31 @@
             cursor: pointer;
             border-radius: 3px;
         }
-
         .help-button {
             padding: 8px 15px;
             background-color: rgb(134, 61, 165);
             color: white;
             border: none;
             cursor: pointer;
-            margin-left: 10px;
             border-radius: 3px;
-            grid-column: 5;
+            grid-column: 5; /* Position in grid */
         }
-        
-        .help-button:hover {
-            background-color: rgb(110, 50, 135);
-        }
-
-        .subtask-input {
-            height: 50px;
+        .help-button:hover { background-color: rgb(110, 50, 135); }
+        .subtask-input { /* Textarea specific */
             box-sizing: border-box;
-            margin-right: 5px;
-            margin-left: 5px;
+            margin: 0 5px; /* Adjusted margin */
+            flex-grow: 1; /* Allow textarea to grow */
+            min-width: 150px; /* Minimum width */
         }
+         .edit-button {
+             padding: 5px 10px;
+             background-color: rgb(134, 61, 165);
+             color: white;
+             border: none;
+             cursor: pointer;
+             margin: 0 5px;
+         }
+         .edit-button:hover { background-color: rgb(110, 50, 135); }
     </style>
 </head>
 <body>
@@ -185,23 +228,21 @@
         <button id="add-task">Add</button>
         <button id="help-icon" class="help-button">Help</button>
     </div>
+    <div id="feedback-area"></div>
 
     <div id="help-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 20px; border: 1px solid #ccc; z-index: 1000;">
         <h2>How to Use the To-Do List</h2>
         <p>1. Enter your task in the "Add a new task..." field.</p>
         <p>2. Select a due date and time (optional).</p>
         <p>3. Click the "Add" button to add the task.</p>
-        <p>4. Click "Mark as complete" to complete a task.</p>
-        <p>5. Click "Delete" to remove a task.</p>
-        <p>6. Click "Add Subtask" to add subtasks to a task.</p>
+        <p>4. Check the box next to a task to complete it.</p> <p>5. Click "Delete" to remove a task (confirmation required).</p> <p>6. Click "Add Subtask" to add subtasks to a task.</p>
         <p>7. Check subtasks to mark them complete, and track overall task progress.</p>
-        <button id="close-help-modal">Close</button>
+        <p>8. Save subtasks using the 'Save' button or by pressing Enter in the description field.</p> <button id="close-help-modal">Close</button>
     </div>
-    
     <div id="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 999;"></div>
 
     <div id="todo-list">
-    </div>
+        </div>
 
     <script>
         const newTaskInput = document.getElementById('new-task');
@@ -213,42 +254,47 @@
         const helpModal = document.getElementById('help-modal');
         const closeHelpModal = document.getElementById('close-help-modal');
         const modalOverlay = document.getElementById('modal-overlay');
+        const feedbackArea = document.getElementById('feedback-area'); // Feedback area reference
 
+        function validateDateTimeInputs(dateInput, timeInput) {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const todayDate = `${year}-${month}-${day}`;
+
+            dateInput.setAttribute('min', todayDate); // Always set min date to today
+
+            // Set min time only if the selected date is today
+            if (dateInput.value === todayDate) {
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                timeInput.setAttribute('min', `${hours}:${minutes}`);
+            } else {
+                timeInput.removeAttribute('min'); // No min time for future dates
+            }
+        }
+
+        // Initial validation for main inputs
+        validateDateTimeInputs(dueDateInput, dueTimeInput);
+        dueDateInput.addEventListener('change', () => validateDateTimeInputs(dueDateInput, dueTimeInput));
+
+        // Help Modal Logic
         helpIcon.addEventListener('click', () => {
             helpModal.style.display = 'block';
             modalOverlay.style.display = 'block';
         });
-        
         closeHelpModal.addEventListener('click', () => {
             helpModal.style.display = 'none';
             modalOverlay.style.display = 'none';
         });
-        
         modalOverlay.addEventListener('click', () => {
             helpModal.style.display = 'none';
             modalOverlay.style.display = 'none';
         });
 
-        function setMinDateAndTime() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
 
-            dueDateInput.setAttribute('min', `${year}-${month}-${day}`);
-            if (dueDateInput.value === `${year}-${month}-${day}`) {
-                dueTimeInput.setAttribute('min', `${hours}:${minutes}`);
-            } else {
-                dueTimeInput.removeAttribute('min');
-            }
-        }
-
-        dueDateInput.addEventListener('change', setMinDateAndTime);
-
-        setMinDateAndTime(); 
-
+        // --- Add Task Logic ---
         addTaskButton.addEventListener('click', () => {
             const taskText = newTaskInput.value.trim();
             const dueDate = dueDateInput.value;
@@ -257,160 +303,265 @@
             if (taskText) {
                 const todoItem = document.createElement('div');
                 todoItem.classList.add('todo-item');
+                const uniqueId = `task-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`; // More unique ID
 
-                const completeButton = document.createElement('button');
-                completeButton.textContent = "Mark as complete";
-                completeButton.id = 'task-${Date.now()}';
+                const taskContentDiv = document.createElement('div');
+                taskContentDiv.classList.add('task-content');
+
+                const completeCheckbox = document.createElement('input');
+                completeCheckbox.type = 'checkbox';
+                completeCheckbox.id = uniqueId; // Use unique ID for label association
 
                 const label = document.createElement('label');
                 label.textContent = taskText;
-                label.setAttribute('for', completeButton.id);
+                label.setAttribute('for', completeCheckbox.id); // Associate label with checkbox
 
-                const dueDateDisplay = document.createElement('span');
-                const [year, month, day] = dueDate.split('-');
-                dueDateDisplay.textContent = dueDate ? `${month}/${day}/${year}` : "\n";
+                taskContentDiv.appendChild(completeCheckbox);
+                taskContentDiv.appendChild(label);
+                todoItem.appendChild(taskContentDiv); // Add checkbox and label container
 
-                const dueTimeDisplay = document.createElement('span');
-                if (dueTime) {
-                    let [hours, minutes] = dueTime.split(':');
-                    const ampm = hours >= 12 ? 'PM' : 'AM';
-                    hours = hours % 12 || 12;
-                    dueTimeDisplay.textContent = `${hours}:${minutes} ${ampm}`;
-                } else {
-                    dueTimeDisplay.textContent = "\n";
-                }
+                // Task Details (Date/Time)
+                 const taskDetailsDiv = document.createElement('div');
+                 taskDetailsDiv.classList.add('task-details');
+                 let detailsText = '';
+                 if (dueDate) {
+                    const [year, month, day] = dueDate.split('-');
+                     detailsText += `Due: ${month}/${day}/${year}`;
+                 }
+                 if (dueTime) {
+                     let [hours, minutes] = dueTime.split(':');
+                     const ampm = hours >= 12 ? 'PM' : 'AM';
+                     hours = hours % 12 || 12;
+                     detailsText += (dueDate ? ', ' : 'Due: ') + `${hours}:${minutes} ${ampm}`;
+                 }
+                 if (detailsText) {
+                     taskDetailsDiv.textContent = detailsText;
+                     todoItem.appendChild(taskDetailsDiv);
+                 }
 
+
+                // Progress Bar
                 const progressBar = document.createElement('div');
                 progressBar.classList.add('progress-bar');
                 const progressBarFill = document.createElement('div');
                 progressBarFill.classList.add('progress-bar-fill');
                 progressBar.appendChild(progressBarFill);
+                todoItem.appendChild(progressBar); // Add progress bar below details
 
+                // Subtasks Container
                 const subtasksDiv = document.createElement('div');
                 subtasksDiv.classList.add('subtasks');
+                todoItem.appendChild(subtasksDiv); // Add subtask container
 
+                // Button Container
                 const buttonContainer = document.createElement('div');
-                buttonContainer.classList.add('button-container'); 
+                buttonContainer.classList.add('button-container');
 
+                // Add Subtask Button
                 const addSubtaskButton = document.createElement('button');
                 addSubtaskButton.textContent = "Add Subtask";
                 addSubtaskButton.classList.add('add-subtask-button');
+                 // Pass necessary elements to addSubtask
                 addSubtaskButton.addEventListener('click', () => {
-                    addSubtask(subtasksDiv, progressBarFill, todoItem);
+                    addSubtask(subtasksDiv, progressBarFill, todoItem, completeCheckbox); // Pass checkbox
                 });
 
+                // Delete Button (with confirmation)
                 const deleteButton = document.createElement('button');
                 deleteButton.textContent = "Delete";
                 deleteButton.addEventListener('click', () => {
-                    todoList.removeChild(todoItem);
+                    if (window.confirm(`Are you sure you want to delete the task: "${taskText}"?`)) {
+                        todoList.removeChild(todoItem);
+                    }
                 });
 
-                buttonContainer.appendChild(completeButton);
-                buttonContainer.appendChild(deleteButton); 
                 buttonContainer.appendChild(addSubtaskButton);
-                
+                buttonContainer.appendChild(deleteButton);
+
+                todoItem.appendChild(buttonContainer); // Add buttons below subtasks
+
+                todoList.appendChild(todoItem);
+
+                const feedbackMsg = document.createElement('div');
+                feedbackMsg.textContent = 'Task added successfully!';
+                feedbackMsg.classList.add('feedback-message'); // Use class for styling
+                feedbackArea.innerHTML = ''; // Clear previous messages
+                feedbackArea.appendChild(feedbackMsg);
+                setTimeout(() => {
+                    if (feedbackMsg.parentNode) {
+                         feedbackMsg.parentNode.removeChild(feedbackMsg);
+                    }
+                }, 2500); // Message disappears after 2.5 seconds
+
+                completeCheckbox.addEventListener('change', () => {
+                    if (completeCheckbox.checked) {
+                        todoItem.classList.add('completed');
+                        addSubtaskButton.disabled = true; // Disable adding subtasks when parent is complete
+                        addSubtaskButton.style.opacity = 0.5;
+                         // Disable subtask checkboxes/inputs if needed
+                         subtasksDiv.querySelectorAll('input').forEach(input => input.disabled = true);
+                         subtasksDiv.querySelectorAll('textarea').forEach(ta => ta.disabled = true);
+                         subtasksDiv.querySelectorAll('.subtask button').forEach(btn => btn.disabled = true); // Disable save/delete
+                    } else {
+                        todoItem.classList.remove('completed');
+                        addSubtaskButton.disabled = false;
+                        addSubtaskButton.style.opacity = 1;
+                        // Simple re-enable:
+                         subtasksDiv.querySelectorAll('input').forEach(input => input.disabled = false);
+                         subtasksDiv.querySelectorAll('textarea').forEach(ta => ta.disabled = false);
+                         subtasksDiv.querySelectorAll('.subtask button').forEach(btn => btn.disabled = false); // Re-enable save/delete
+                         // Reapply individual disabled states if needed (e.g., based on saved status)
+                         subtasksDiv.querySelectorAll('.subtask').forEach(st => {
+                              if(st.dataset.saved === 'true'){
+                                   const inputs = st.querySelectorAll('.subtask-inputs input, .subtask-inputs textarea');
+                                   inputs.forEach(inp => inp.disabled = true);
+                                   const saveBtn = st.querySelector('.save-subtask-button');
+                                   if(saveBtn) saveBtn.disabled = true;
+                              }
+                         });
+                    }
+                    updateMainTaskCompletion(todoItem, completeCheckbox); // Update progress based on subtasks
+                });
+
+
+                // Clear main inputs
                 newTaskInput.value = '';
                 dueDateInput.value = '';
                 dueTimeInput.value = '';
-
-                completeButton.addEventListener('click', () => {
-                    if (completeButton.textContent === "Mark as complete"){
-                        completeButton.textcontent = "Mark as incomplete";
-                        todoItem.classList.add('completed');
-                        progressBarFill.style.width = '100%';
-                    } else {
-                        completeButton.textContent = "Mark as complete";
-                        todoItem.classList.remove('completed');
-                        progressBarFill.style.width = '0%';
-                        const subtaskcheckboxes = todoItem.querySelectorAll('.subtasks input[type="checkbox"]');
-                        subtaskcheckboxes.forEach(checkbox => checkbox.checked = false);
-                    }
-                    updateMainTaskCompletion(todoItem, completeButton);
-                });
-
-                todoItem.appendChild(buttonContainer);
-                todoItem.appendChild(label);
-                todoItem.appendChild(dueDateDisplay);
-                todoItem.appendChild(dueTimeDisplay);
-                todoItem.appendChild(progressBar); 
-                todoItem.appendChild(subtasksDiv); 
-                todoList.appendChild(todoItem);             
-
-                function addSubtask(subtasksDiv, progressBarFill, todoItem, button) {
-                    const subtaskDiv = document.createElement('div');
-                    subtaskDiv.classList.add('subtask');
-
-                    const subtaskCheckbox = document.createElement('input');
-                    subtaskCheckbox.type = 'checkbox';
-        
-                    const subtaskInput = document.createElement('textarea');
-                    subtaskInput.placeholder = "Subtask Description";
-                    subtaskInput.rows = 3;
-                    subtaskInput.classList.add('subtask-input');
-        
-                    const subtaskDueDate = document.createElement('input');
-                    subtaskDueDate.type = 'date';
-                    subtaskDueDate.classList.add('subtask-input');
-
-                    const subtaskDueTime = document.createElement('input');
-                    subtaskDueTime.type = 'time';
-                    subtaskDueTime.classList.add('subtask-input');
-                    
-        
-                    subtaskDiv.appendChild(subtaskCheckbox);
-                    subtaskDiv.appendChild(subtaskInput);
-                    subtaskDiv.appendChild(subtaskDueDate);
-                    subtaskDiv.appendChild(subtaskDueTime);
-
-                    const deleteSubtaskButton = document.createElement('button');
-                    deleteSubtaskButton.textContent = "Delete";
-                    deleteSubtaskButton.addEventListener('click', () => {
-                        subtasksDiv.removeChild(subtaskDiv);
-                        updateMainTaskCompletion(todoItem, button);
-                    });
-                    subtaskDiv.appendChild(deleteSubtaskButton);
-                    subtasksDiv.appendChild(subtaskDiv);
-        
-                    subtaskCheckbox.addEventListener('change', () => {
-                        updateMainTaskCompletion(todoItem, button);
-                    });
-                }
-        
-                function updateMainTaskCompletion(todoItem, button) {
-                    const subtaskCheckboxes = todoItem.querySelectorAll('.subtask input[type="checkbox"]');
-                    const checkedCount = Array.from(subtaskCheckboxes).filter(cb => cb.checked).length;
-                    const totalCount = subtaskCheckboxes.length;
-                    const progressBarFill = todoItem.querySelector('.progress-bar-fill');
-                    const addSubtaskButton = todoItem.querySelector('.add-subtask-button');
-
-                    if (todoItem.classList.contains('completed')) {
-                        progressBarFill.style.width = '100%';
-                    } else {
-                        progressBarFill.style.width = `${(checkedCount / totalCount) * 100}%`;
-                    }
-                
-                    if (button) {
-                        if ((checkedCount === totalCount && totalCount > 0) || todoItem.classList.contains('completed')){
-                            button.textContent = "Mark as incomplete";
-                            todoItem.classList.add('completed');
-                            addSubtaskButton.disabled = true;
-                            addSubtaskButton.style.opacity = 0.5;
-                        } else {
-                            button.textContent = "Mark as complete";
-                            todoItem.classList.remove('completed');
-                            addSubtaskButton.disabled = false;
-                            addSubtaskButton.style.opacity = 1;
-                        }
-                    }
-                    
-                }
-                setMinDateAndTime();
-
+                checkInput(); // Disable add button again
+                validateDateTimeInputs(dueDateInput, dueTimeInput); // Reset time min attribute if needed
             }
-
-            addTaskButton.disabled = true;
         });
 
+        function addSubtask(subtasksDiv, progressBarFill, todoItem, mainTaskCheckbox) {
+             const subtaskWrapper = document.createElement('div'); // Wrapper for alignment
+             subtaskWrapper.classList.add('subtask'); // Use this for main styling/border
+
+             const subtaskDisplayDiv = document.createElement('div'); // For checkbox and label
+             subtaskDisplayDiv.style.display = 'flex';
+             subtaskDisplayDiv.style.alignItems = 'center';
+             subtaskDisplayDiv.style.width = '100%'; // Take full width initially
+             subtaskDisplayDiv.style.marginBottom = '5px';
+             subtaskDisplayDiv.style.display = 'none'; // Hide initially
+
+             const subtaskCheckbox = document.createElement('input');
+             subtaskCheckbox.type = 'checkbox';
+             subtaskCheckbox.disabled = true; // Enable after saving
+
+             const subtaskLabel = document.createElement('label');
+             subtaskLabel.textContent = ''; // Set after saving
+
+             subtaskDisplayDiv.appendChild(subtaskCheckbox);
+             subtaskDisplayDiv.appendChild(subtaskLabel);
+
+             const subtaskInputDiv = document.createElement('div');
+             subtaskInputDiv.classList.add('subtask-inputs'); // Class for styling inputs together
+
+             const subtaskInput = document.createElement('textarea');
+             subtaskInput.placeholder = "Subtask Description";
+             subtaskInput.rows = 1; // Start small, can grow
+             subtaskInput.style.resize = 'vertical'; // Allow vertical resize
+             subtaskInput.classList.add('subtask-input');
+
+             const subtaskDueDate = document.createElement('input');
+             subtaskDueDate.type = 'date';
+             subtaskDueDate.classList.add('subtask-input');
+
+             const subtaskDueTime = document.createElement('input');
+             subtaskDueTime.type = 'time';
+             subtaskDueTime.classList.add('subtask-input');
+
+             validateDateTimeInputs(subtaskDueDate, subtaskDueTime); // Apply validation
+             subtaskDueDate.addEventListener('change', () => validateDateTimeInputs(subtaskDueDate, subtaskDueTime));
+
+             const saveSubtaskButton = document.createElement('button');
+             saveSubtaskButton.textContent = "Save";
+             saveSubtaskButton.classList.add('save-subtask-button');
+
+             const subtaskActionsDiv = document.createElement('div');
+             subtaskActionsDiv.classList.add('subtask-actions');
+             subtaskActionsDiv.style.marginLeft = 'auto'; // Push buttons to the right in display mode
+             subtaskActionsDiv.style.display = 'none'; // Hide initially
+
+             const deleteSubtaskButton = document.createElement('button');
+             deleteSubtaskButton.textContent = "Delete";
+             deleteSubtaskButton.addEventListener('click', () => {
+                  // --- Fix #1: Deletion Confirmation ---
+                  const subtaskDesc = subtaskLabel.textContent || subtaskInput.value.trim() || 'this subtask';
+                  if (window.confirm(`Are you sure you want to delete ${subtaskDesc}?`)) {
+                      subtasksDiv.removeChild(subtaskWrapper); // Remove the whole wrapper
+                      updateMainTaskCompletion(todoItem, mainTaskCheckbox); // Update progress
+                  }
+             });
+             subtaskActionsDiv.appendChild(deleteSubtaskButton);
+             subtaskDisplayDiv.appendChild(subtaskActionsDiv); // Add actions to display div
+
+
+             // Save Subtask Logic
+             const saveSubtask = () => {
+                const subtaskText = subtaskInput.value.trim();
+                if (subtaskText) {
+                    subtaskLabel.textContent = subtaskText;
+                    subtaskInputDiv.style.display = 'none'; // Hide input fields
+                    subtaskDisplayDiv.style.display = 'flex'; // Show checkbox/label/actions
+                    subtaskCheckbox.disabled = false; // Enable checkbox
+                    subtaskActionsDiv.style.display = 'flex'; // Show delete button
+                    subtaskWrapper.dataset.saved = 'true'; // Mark as saved
+                    updateMainTaskCompletion(todoItem, mainTaskCheckbox); // Update progress
+                } else {
+                    alert("Please enter a subtask description."); // Basic validation
+                }
+             };
+
+             saveSubtaskButton.addEventListener('click', saveSubtask);
+
+             subtaskInput.addEventListener('keypress', function(event) {
+                 // Use Enter to save, Shift+Enter for newline (default textarea behavior handles shift+enter)
+                 if (event.key === "Enter" && !event.shiftKey) {
+                     event.preventDefault(); 
+                     saveSubtask(); 
+                 }
+             });
+
+             subtaskInputDiv.appendChild(subtaskInput);
+             subtaskInputDiv.appendChild(subtaskDueDate);
+             subtaskInputDiv.appendChild(subtaskDueTime);
+             subtaskInputDiv.appendChild(saveSubtaskButton);
+
+             subtaskWrapper.appendChild(subtaskDisplayDiv); 
+             subtaskWrapper.appendChild(subtaskInputDiv); 
+             subtasksDiv.appendChild(subtaskWrapper);
+
+             subtaskInput.focus(); // Focus on the new subtask input
+
+             subtaskCheckbox.addEventListener('change', () => {
+                  if(subtaskCheckbox.checked){
+                       subtaskWrapper.classList.add('completed');
+                  } else {
+                       subtaskWrapper.classList.remove('completed');
+                  }
+                  updateMainTaskCompletion(todoItem, mainTaskCheckbox); // Update progress on change
+             });
+        }
+
+        // --- Update Main Task Completion (Progress Bar) ---
+        function updateMainTaskCompletion(todoItem, mainTaskCheckbox) {
+             const subtaskCheckboxes = todoItem.querySelectorAll('.subtask input[type="checkbox"]');
+             const savedSubtasks = todoItem.querySelectorAll('.subtask[data-saved="true"]'); // Only count saved subtasks
+             const checkedCount = Array.from(savedSubtasks)
+                                      .map(st => st.querySelector('input[type="checkbox"]'))
+                                      .filter(cb => cb && cb.checked).length;
+             const totalCount = savedSubtasks.length;
+             const progressBarFill = todoItem.querySelector('.progress-bar-fill');
+
+             if (totalCount > 0) {
+                 progressBarFill.style.width = `${(checkedCount / totalCount) * 100}%`;
+             } else {
+                 progressBarFill.style.width = '0%'; // No saved subtasks, 0% progress
+             }
+        }
+
+        // Disable Add button initially and on input change
         function checkInput(){
           if (newTaskInput.value.trim() !== ""){
             addTaskButton.disabled = false;
@@ -418,19 +569,19 @@
             addTaskButton.disabled = true;
           }
         }
-
         newTaskInput.addEventListener("input", checkInput);
+        checkInput(); // Initial check
 
-        checkInput();
-
-
+        // Enter key to add main task
         newTaskInput.addEventListener("keypress", function(event) {
           if (event.key === "Enter") {
             event.preventDefault();
-            addTaskButton.click();
+            // Check if the button is enabled before clicking
+            if (!addTaskButton.disabled) {
+                addTaskButton.click();
+            }
           }
         });
-
     </script>
 </body>
 </html>
